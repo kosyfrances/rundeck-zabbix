@@ -1,2 +1,24 @@
 ---
-# tasks file for zabbix
+- name: Ensure downloads directory exists
+  file:
+    path: /downloads
+    state: directory
+  register: downloads_dir
+
+- name: Download Zabbix
+  get_url:
+    url: http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.4-1+xenial_all.deb
+    dest: '{{ downloads_dir.path }}'
+  register: zabbix_deb
+
+- name: Install Zabbix
+  apt:
+    deb: '{{ zabbix_deb.dest }}'
+    update_cache: yes
+
+- name: Install Zabbix server with mysql support and Zabbix frontend
+  apt:
+    name: '{{ item }}'
+  with_items:
+    - zabbix-server-mysql
+    - zabbix-frontend-php

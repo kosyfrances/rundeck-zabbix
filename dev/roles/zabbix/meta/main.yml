@@ -1,7 +1,6 @@
 galaxy_info:
-  author: your name
-  description: your description
-  company: your company (optional)
+  author: Kosy Anyanwu
+  description: Role to install Zabbix 3.4 on Ubuntu 16.0. It installs zabbix server with MySQL support and frontend on same host.
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
