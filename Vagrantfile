@@ -9,6 +9,9 @@ Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/xenial64"
   config.vm.provision "shell", path: "dev/provision.sh"
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "dev/playbook.setup.yml"
+  end
 
   # rundeck 2.7.2 server
   config.vm.define "rundeck" do |rundeck|
