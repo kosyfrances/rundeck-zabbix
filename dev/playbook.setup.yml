@@ -1,0 +1,10 @@
+---
+- hosts: rundeck
+  become: yes
+  roles:
+    - rundeck
+
+- hosts: zabbix
+  become: yes
+  roles:
+    - zabbix
