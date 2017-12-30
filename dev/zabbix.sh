@@ -5,7 +5,8 @@
 # https://www.zabbix.com/documentation/3.4/manual/installation/containers
 
 
-### NOTE: Zabbix web username: Admin, password: zabbix
+### NOTE: You can access Zabbix at http://localhost:80
+### Zabbix web username: Admin, password: zabbix
 
 set -eo pipefail
 
