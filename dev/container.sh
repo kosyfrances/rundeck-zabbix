@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Quick script to manage containers used in this project
 
 # stop_rundeck --> Stop Rundeck container
