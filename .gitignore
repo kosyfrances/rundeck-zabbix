@@ -100,6 +100,4 @@ ENV/
 # mypy
 .mypy_cache/
 
-# vagrant and ansible
-.vagrant/
-*.retry
+.DS_Store
