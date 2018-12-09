@@ -17,6 +17,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kosyfrances/rundeck-zabbix/lib"
+	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +33,41 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("setup called")
+		var z_url, z_user, z_password, r_url, r_api_key string
+
+		fmt.Println("Enter the Zabbix Server URL:")
+		fmt.Scanln(&z_url)
+
+		fmt.Println("Enter the Zabbix Username:")
+		fmt.Scanln(&z_user)
+
+		fmt.Println("Enter the Zabbix Password:")
+		fmt.Scanln(&z_password)
+
+		fmt.Println("Enter the Rundeck URL:")
+		fmt.Scanln(&r_url)
+
+		fmt.Println("Enter the Rundeck API_KEY:")
+		fmt.Scanln(&r_api_key)
+
+		zabbixConfig := lib.ZabbixConfig{
+			Url:      z_url,
+			UserName: z_user,
+			Password: z_password,
+		}
+
+		rundeckConfig := lib.RundeckConfig{
+			Url:    r_url,
+			ApiKey: r_api_key,
+		}
+
+		newConfig := lib.Config{
+			Zabbix:  zabbixConfig,
+			Rundeck: rundeckConfig,
+		}
+
+		newConfig.Save()
+		log.Info("Configuration file generated in " + lib.ConfigDirectory)
 	},
 }
 
