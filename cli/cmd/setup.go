@@ -25,40 +25,35 @@ import (
 // setupCmd represents the setup command
 var setupCmd = &cobra.Command{
 	Use:   "setup",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "initialise tool configuration",
+	Long:  `initialise tool configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var z_url, z_user, z_password, r_url, r_api_key string
+		var zabbixUrl, zabbixUser, zabbixPassword, rundeckUrl, rundeckApiKey string
 
 		fmt.Println("Enter the Zabbix Server URL:")
-		fmt.Scanln(&z_url)
+		fmt.Scanln(&zabbixUrl)
 
 		fmt.Println("Enter the Zabbix Username:")
-		fmt.Scanln(&z_user)
+		fmt.Scanln(&zabbixUser)
 
 		fmt.Println("Enter the Zabbix Password:")
-		fmt.Scanln(&z_password)
+		fmt.Scanln(&zabbixPassword)
 
 		fmt.Println("Enter the Rundeck URL:")
-		fmt.Scanln(&r_url)
+		fmt.Scanln(&rundeckUrl)
 
 		fmt.Println("Enter the Rundeck API_KEY:")
-		fmt.Scanln(&r_api_key)
+		fmt.Scanln(&rundeckApiKey)
 
 		zabbixConfig := lib.ZabbixConfig{
-			Url:      z_url,
-			UserName: z_user,
-			Password: z_password,
+			Url:      zabbixUrl,
+			UserName: zabbixUser,
+			Password: zabbixPassword,
 		}
 
 		rundeckConfig := lib.RundeckConfig{
-			Url:    r_url,
-			ApiKey: r_api_key,
+			Url:    rundeckUrl,
+			ApiKey: rundeckApiKey,
 		}
 
 		newConfig := lib.Config{
