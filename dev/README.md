@@ -44,6 +44,16 @@ Verify that the value of `Template App HTTP Service: HTTP service is down on {HO
 
 ![Photo of Zabbix Host Trigger Page](assets/zabbix-trigger-page.png)
 
+### Create Rundeck project
+To create a [new project](https://docs.rundeck.com/docs/administration/projects/create-new-project.html) on Rundeck;
+* Change the Resource Model Document Format to yaml instead of the default xml (we only support yaml in our codebase for now). Exec into the running rundeck container and update this file `/etc/rundeck/project.properties`, specifically these fields:
+```
+resources.source.1.config.file=/var/rundeck/projects/${project.name}/etc/resources.yaml
+resources.source.1.config.format=resourceyaml
+```
+* Visit http://localhost:4440/resources/createProject
+* Enter the project name and click create, then save, leaving the defaults.
+
 ### Container management
 * Start Zabbix server containers -->  `make start-zabbix-server`
 * Stop Zabbix server containers --> `make stop-zabbix-server`
