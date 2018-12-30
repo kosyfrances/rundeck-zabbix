@@ -16,10 +16,12 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kosyfrances/rundeck-zabbix/lib"
 	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // setupCmd represents the setup command
@@ -28,32 +30,42 @@ var setupCmd = &cobra.Command{
 	Short: "initialise tool configuration",
 	Long:  `initialise tool configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var zabbixUrl, zabbixUser, zabbixPassword, rundeckUrl, rundeckApiKey string
+		var zabbixURL, zabbixUser, zabbixPassword, rundeckURL, rundeckAPIKey string
+		zabbixConfigKeyName, rundeckConfigKeyName := lib.CONFIG_ZABBIX_KEY_NAME, lib.CONFIG_RUNDECK_KEY_NAME
+		if viper.IsSet(zabbixConfigKeyName) {
+			zabbixURL = getConfigValueByKey(zabbixConfigKeyName + "." + lib.CONFIG_URL_KEY_NAME)
+			zabbixUser = getConfigValueByKey(zabbixConfigKeyName + "." + lib.CONFIG_USERNAME_KEY_NAME)
+			zabbixPassword = getConfigValueByKey(zabbixConfigKeyName + "." + lib.CONFIG_PASSWORD_KEY_NAME)
+		}
 
-		fmt.Println("Enter the Zabbix Server URL:")
-		fmt.Scanln(&zabbixUrl)
+		fmt.Println(appendValueToPrompt("Enter the Zabbix Server URL:", zabbixURL))
+		fmt.Scanln(&zabbixURL)
 
-		fmt.Println("Enter the Zabbix Username:")
+		fmt.Println(appendValueToPrompt("Enter the Zabbix Username:", zabbixUser))
 		fmt.Scanln(&zabbixUser)
 
-		fmt.Println("Enter the Zabbix Password:")
+		fmt.Println(appendValueToPrompt("Enter the Zabbix Password:", zabbixPassword))
 		fmt.Scanln(&zabbixPassword)
 
-		fmt.Println("Enter the Rundeck URL:")
-		fmt.Scanln(&rundeckUrl)
+		if viper.IsSet(rundeckConfigKeyName) {
+			rundeckURL = getConfigValueByKey(rundeckConfigKeyName + "." + lib.CONFIG_URL_KEY_NAME)
+			rundeckAPIKey = getConfigValueByKey(rundeckConfigKeyName + "." + lib.CONFIG_API_KEY_KEY_NAME)
+		}
+		fmt.Println(appendValueToPrompt("Enter the Rundeck URL:", rundeckURL))
+		fmt.Scanln(&rundeckURL)
 
-		fmt.Println("Enter the Rundeck API_KEY:")
-		fmt.Scanln(&rundeckApiKey)
+		fmt.Println(appendValueToPrompt("Enter the Rundeck API_KEY:", rundeckAPIKey))
+		fmt.Scanln(&rundeckAPIKey)
 
 		zabbixConfig := lib.ZabbixConfig{
-			Url:      zabbixUrl,
+			Url:      zabbixURL,
 			UserName: zabbixUser,
 			Password: zabbixPassword,
 		}
 
 		rundeckConfig := lib.RundeckConfig{
-			Url:    rundeckUrl,
-			ApiKey: rundeckApiKey,
+			Url:    rundeckURL,
+			ApiKey: rundeckAPIKey,
 		}
 
 		newConfig := lib.Config{
@@ -64,6 +76,32 @@ var setupCmd = &cobra.Command{
 		newConfig.Save()
 		log.Info("Configuration file generated in " + lib.ConfigDirectory)
 	},
+}
+
+// gets value from config file loaded via viper
+func getConfigValueByKey(key string) string {
+	var result string
+	value := viper.Get(key)
+	if value != nil {
+		result = value.(string)
+	}
+	return result
+}
+
+// mask values retrieved from config
+//https://play.golang.org/p/E4k4zT9ATK
+func mask(value string) string {
+	if len(value) <= 4 {
+		return value
+	}
+	return strings.Repeat("*", len(value)-4) + value[len(value)-4:]
+}
+
+func appendValueToPrompt(promptString, value string) string {
+	if value != "" {
+		return promptString + " [" + mask(value) + "]"
+	}
+	return promptString
 }
 
 func init() {
