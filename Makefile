@@ -43,3 +43,8 @@ stop-dummy-host:
 start-all: start-zabbix-server start-rundeck start-dummy-host
 
 stop-all: stop-zabbix-server stop-rundeck stop-dummy-host
+
+test:
+	go test ./...
+	@echo ""
+	golint ./...
