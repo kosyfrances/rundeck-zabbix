@@ -13,3 +13,4 @@
 
 # Others
 .DS_Store
+vendor/
