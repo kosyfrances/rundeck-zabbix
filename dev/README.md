@@ -1,4 +1,4 @@
-# Dev setup
+## Dev setup
 
 ### Zabbix server setup on docker
 * Run `make build-zabbix-server` to spin up containers needed for Zabbix server to run on docker.
@@ -66,3 +66,6 @@ resources.source.1.config.format=resourceyaml
 
 * Start all containers --> `make start-all`
 * Stop all containers --> `make stop-all`
+
+## Running tests
+Run `make test` to run tests.
