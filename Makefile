@@ -43,3 +43,8 @@ stop-dummy-host:
 start-all: start-zabbix-server start-rundeck start-dummy-host
 
 stop-all: stop-zabbix-server stop-rundeck stop-dummy-host
+
+test:
+	golint `go list ./... | grep -v /vendor/`
+	@echo ""
+	go test ./...
