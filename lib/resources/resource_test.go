@@ -45,7 +45,10 @@ func TestMakeResource(t *testing.T) {
 	defer os.Remove(tmpfile.Name()) // clean up
 	defer tmpfile.Close()           // close file
 
-	a := zabbix.NewAPI(ts.URL, "fake_zabbix_key")
+	a, err := zabbix.CreateClientUsingAPIKey(ts.URL, "fake_zabbix_key")
+	if err != nil {
+		t.Fatalf("process ran with err %v", err)
+	}
 
 	res, err := a.GetHostsInfo()
 	if err != nil {
