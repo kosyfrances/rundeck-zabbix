@@ -19,7 +19,7 @@ type API struct {
 type Payload struct {
 	Method  string      `json:"method"`
 	Params  interface{} `json:"params,omitempty"`
-	Auth    string      `json:"auth"`
+	Auth    string      `json:"auth,omitempty"`
 	JSONRPC string      `json:"jsonrpc"`
 	ID      int         `json:"id"`
 }
@@ -35,12 +35,44 @@ type Result struct {
 // Results struct holds a list of Zabbix host info
 type Results []Result
 
-// NewAPI builds new API struct
-func NewAPI(URL, key string) API {
-	return API{
+// API response Error struct
+type apiError struct {
+	Message string `json:"message,omitempty"`
+	Data    string `json:"data,omitempty"`
+}
+
+// CreateClientUsingAPIKey creates new API client using key
+func CreateClientUsingAPIKey(URL, key string) (*API, error) {
+	if URL == "" {
+		return nil, fmt.Errorf("zabbix URL missing. please run setup again")
+	}
+
+	if key == "" {
+		return nil, fmt.Errorf("zabbix API key missing. please run setup again")
+	}
+
+	return &API{
 		URL: URL,
 		Key: key,
+	}, nil
+}
+
+// CreateClientUsingAuth creates new API client using username and password
+func CreateClientUsingAuth(URL, user, password string) (*API, error) {
+	if URL == "" {
+		return nil, fmt.Errorf("zabbix URL not found. run setup again")
 	}
+
+	// Ensure that either key, username and password are not empty at the same time
+	if user == "" || password == "" {
+		return nil, fmt.Errorf("zabbix username and password must be present. run setup again")
+	}
+
+	return &API{
+		URL:      URL,
+		User:     user,
+		Password: password,
+	}, nil
 }
 
 // BuildPayload builds payload with params and method given
@@ -71,24 +103,11 @@ func (a *API) MakeRequest(payload Payload) (*http.Response, error) {
 
 	req.Header.Set("Content-type", "application/json")
 	// Send the request via a client
-	resp, err := http.DefaultClient.Do(req)
-	return resp, err
+	return http.DefaultClient.Do(req)
 }
 
-// SetKey sets Zabbix Key in the API struct if it is not already set
-func (a *API) SetKey() error {
-	if a.Key != "" {
-		return nil
-	}
-	key, err := a.getKey()
-	if err != nil {
-		return err
-	}
-	a.Key = key
-	return nil
-}
-
-func (a *API) getKey() (string, error) {
+// GetKey gets Zabbix API key
+func (a *API) GetKey() (string, error) {
 	params := struct {
 		User     string `json:"user"`
 		Password string `json:"password"`
@@ -100,10 +119,12 @@ func (a *API) getKey() (string, error) {
 	payload := a.BuildPayload(params, "user.login")
 
 	var r struct {
-		Key string `json:"result"`
+		Key string   `json:"result"`
+		Err apiError `json:"error"`
 	}
 
 	resp, err := a.MakeRequest(payload)
+
 	if err != nil {
 		return "", fmt.Errorf("cannot make Zabbix API call. Error: %v", err)
 	}
@@ -112,6 +133,11 @@ func (a *API) getKey() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot decode response. Error: %v", err)
 	}
+	//  Check if the response contains an error
+	if r.Err != (apiError{}) {
+		return "", fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
+	}
+
 	return r.Key, nil
 }
 
@@ -134,6 +160,7 @@ func (a *API) GetHostsInfo() (Results, error) {
 
 	var r struct {
 		Results `json:"result"`
+		Err     apiError `json:"error"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&r)
@@ -141,5 +168,9 @@ func (a *API) GetHostsInfo() (Results, error) {
 		return nil, fmt.Errorf("cannot decode response. error: %v", err)
 	}
 
+	//  Check if the response contains an error
+	if r.Err != (apiError{}) {
+		return r.Results, fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
+	}
 	return r.Results, nil
 }
