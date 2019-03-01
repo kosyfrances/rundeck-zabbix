@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -31,17 +29,27 @@ func init() {
 }
 
 func runResource(cmd *cobra.Command, args []string) {
-	URL := viper.GetString("zabbix.url")
+	URL := viper.GetString("zabbix.URL")
 	key := viper.GetString("zabbix.api_key")
-	a := zabbix.NewAPI(URL, key)
+	a, err := zabbix.NewAPI(URL, key, "", "")
+	if err != nil {
+		log.Error("cannot find needed params.", err)
+	}
 
 	res, err := a.GetHostsInfo()
 	if err != nil {
 		log.Error("cannot get hosts info.\n", err)
+		return
+	}
+
+	if len(res) == 0 {
+		log.Warn("No resource found.")
+		return
 	}
 
 	if err = resources.Make(res, filePath); err != nil {
-		fmt.Println(err)
 		log.Error("cannot generate resource.\n", err)
+	} else {
+		log.Info("Resources generated in ", filePath)
 	}
 }
