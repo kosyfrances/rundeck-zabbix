@@ -11,32 +11,25 @@ import (
 
 // Test that we can get Zabbix API key from an API call,
 // set it in API struct
-func TestGetAndSetKey(t *testing.T) {
+func TestGetKey(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintln(w, `{"result": "fake_zabbix_key"}`)
 	}))
 	defer ts.Close()
 
-	var api API
-	api.User = "ZABBIX_USER"
-	api.Password = "ZABBIX_PASSWORD"
-	api.URL = ts.URL
+	api, err := CreateClientUsingAuth(ts.URL, "ZABBIX_USER", "ZABBIX_PASSWORD")
+	if err != nil {
+		t.Fatalf("cannot find needed params. %v", err)
+	}
 
 	// Get API Key
-	key, err := api.getKey()
+	key, err := api.GetKey()
 	if err != nil {
 		t.Fatalf("Process ran with err %v, want ZABBIX_API_KEY to be fake_zabbix_key", err)
 	}
 	if key != "fake_zabbix_key" {
 		t.Error("Expected key to be fake_zabbix_key")
-	}
-
-	// Set API Key
-	api.SetKey()
-
-	if api.Key != "fake_zabbix_key" {
-		t.Error("Expected ZabbixAPI.Key to be fake_zabbix_key")
 	}
 }
 
@@ -48,8 +41,10 @@ func TestMakeRequest(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	var api API
-	api.URL = ts.URL
+	api, err := CreateClientUsingAPIKey(ts.URL, "ZABBIX_KEY")
+	if err != nil {
+		t.Error("cannot find needed params.", err)
+	}
 
 	payload := api.BuildPayload(nil, "apiinfo.version")
 	resp, err := api.MakeRequest(payload)
@@ -85,7 +80,11 @@ func TestGetHostsInfo(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	a := NewAPI(ts.URL, "fake_zabbix_key")
+	a, err := CreateClientUsingAPIKey(ts.URL, "fake_zabbix_key")
+	if err != nil {
+		t.Fatalf("process ran with err %v,", err)
+	}
+
 	res, err := a.GetHostsInfo()
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, expected)
