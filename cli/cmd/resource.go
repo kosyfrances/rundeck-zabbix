@@ -3,8 +3,8 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
+	"github.com/kosyfrances/rundeck-zabbix/lib"
 	"github.com/kosyfrances/rundeck-zabbix/lib/resources"
 	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
@@ -29,27 +29,35 @@ func init() {
 }
 
 func runResource(cmd *cobra.Command, args []string) {
-	URL := viper.GetString("zabbix.URL")
-	key := viper.GetString("zabbix.api_key")
-	a, err := zabbix.NewAPI(URL, key, "", "")
+	newConfig, err := lib.NewConfigFromFile(lib.ConfigPath)
 	if err != nil {
-		log.Error("cannot find needed params.", err)
+		log.Errorf("cannot create config from file. %v", err)
+		return
+	}
+	URL := newConfig.Zabbix.URL
+	key := newConfig.Zabbix.APIKey
+
+	a, err := zabbix.CreateClientUsingAPIKey(URL, key)
+	if err != nil {
+		log.Errorf("cannot find needed params. %v", err)
+		return
 	}
 
 	res, err := a.GetHostsInfo()
 	if err != nil {
-		log.Error("cannot get hosts info.\n", err)
+		log.Errorf("cannot get hosts info. %v", err)
 		return
 	}
 
 	if len(res) == 0 {
+		// No servers are on Zabbix
 		log.Warn("No resource found.")
 		return
 	}
 
 	if err = resources.Make(res, filePath); err != nil {
-		log.Error("cannot generate resource.\n", err)
+		log.Errorf("cannot generate resource. %v", err)
 	} else {
-		log.Info("Resources generated in ", filePath)
+		log.Infof("Resources generated in %v", filePath)
 	}
 }

@@ -54,7 +54,7 @@ func Make(results zabbix.Results, file string) error {
 
 	d, err := yaml.Marshal(&m)
 	if err != nil {
-		return fmt.Errorf("cannot marshal resource to yaml. error: %v", err)
+		return fmt.Errorf("cannot marshal resource to yaml. %v", err)
 	}
 	return dumpToFile(file, d)
 }
@@ -63,13 +63,13 @@ func dumpToFile(filePath string, data []byte) error {
 	// If the filePath doesn't exist, create it, or append to the file
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("cannot open file. error: %v", err)
+		return fmt.Errorf("cannot open file. %v", err)
 	}
 
 	defer f.Close()
 
 	if _, err := f.Write(data); err != nil {
-		return fmt.Errorf("cannot write to file. error: %v", err)
+		return fmt.Errorf("cannot write to file. %v", err)
 	}
 
 	return nil
