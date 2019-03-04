@@ -12,23 +12,23 @@ import (
 var filePath string
 
 // resourceCmd represents the resource command
-var resourceCmd = &cobra.Command{
-	Use:   "resource",
+var resourcesCmd = &cobra.Command{
+	Use:   "resources",
 	Short: "generate Rundeck resources",
 	Long: `generate Rundeck resource model document in Yaml format with hosts' information from Zabbix
 
-	If a file is given, the generate resources are appended to the file.
-	If the given filePath does not exist, it gets created.
+	If a file path is given, the generated resources are appended to the file.
+	If the given file Path does not exist, it gets created.
 	Otherwise, a resources.yml file is generated in the current path.`,
-	Run: runResource,
+	Run: runResources,
 }
 
 func init() {
-	generateCmd.AddCommand(resourceCmd)
-	resourceCmd.Flags().StringVar(&filePath, "path", "resources.yml", "Path to file where generated Resources will be written")
+	generateCmd.AddCommand(resourcesCmd)
+	resourcesCmd.Flags().StringVar(&filePath, "file", "resources.yml", "Path to file where generated Resources will be written")
 }
 
-func runResource(cmd *cobra.Command, args []string) {
+func runResources(cmd *cobra.Command, args []string) {
 	newConfig, err := lib.NewConfigFromFile(lib.ConfigPath)
 	if err != nil {
 		log.Errorf("cannot create config from file. %v", err)
