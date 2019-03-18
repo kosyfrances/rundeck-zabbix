@@ -15,8 +15,7 @@ import (
 // Test that we can get Rundeck resource model document in Yaml format
 // with hosts' information from Zabbix
 func TestMakeResource(t *testing.T) {
-	// mock api call
-	expected := zabbix.Results{
+	expected := zabbix.HostResults{
 		{
 			HostID:      "10261",
 			Host:        "dummy-host",
@@ -24,10 +23,12 @@ func TestMakeResource(t *testing.T) {
 			Description: "",
 		},
 	}
+
+	// mock api call
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		res := struct {
-			zabbix.Results `json:"result"`
+			zabbix.HostResults `json:"result"`
 		}{expected}
 		err := json.NewEncoder(w).Encode(res)
 		if err != nil {
@@ -77,7 +78,7 @@ dummy-host:
 	c, err := ioutil.ReadFile(tmpfile.Name())
 
 	if err != nil {
-		t.Fatalf("expected file content to be %v\n error: %v", e, err)
+		t.Fatalf("expected file content to be %v\n\n error: %v", e, err)
 	}
 
 	content := strings.Trim(string(c), "\n")

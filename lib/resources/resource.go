@@ -2,15 +2,15 @@ package resources
 
 import (
 	"fmt"
-	"os"
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
 	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
 
 // Resource struct holds Rundeck resource document mapping info
-type Resource struct {
+type resource struct {
 	Name        string `yaml:"hostname"`
 	Node        string `yaml:"nodename"`
 	Description string `yaml:"description"`
@@ -41,11 +41,11 @@ dummy-host:
   username: ""
   ssh-keypath: ""
 */
-func Make(results zabbix.Results, file string) error {
-	m := make(map[string]Resource)
+func Make(results zabbix.HostResults, file string) error {
+	m := make(map[string]resource)
 
 	for _, result := range results {
-		m[result.Name] = Resource{
+		m[result.Name] = resource{
 			Name:        result.Host,
 			Node:        result.Name,
 			Description: result.Description,
@@ -56,21 +56,5 @@ func Make(results zabbix.Results, file string) error {
 	if err != nil {
 		return fmt.Errorf("cannot marshal resource to yaml. %v", err)
 	}
-	return dumpToFile(file, d)
-}
-
-func dumpToFile(filePath string, data []byte) error {
-	// If the filePath doesn't exist, create it, or append to the file
-	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("cannot open file. %v", err)
-	}
-
-	defer f.Close()
-
-	if _, err := f.Write(data); err != nil {
-		return fmt.Errorf("cannot write to file. %v", err)
-	}
-
-	return nil
+	return utils.DumpToFile(file, d)
 }
