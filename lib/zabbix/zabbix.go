@@ -25,16 +25,30 @@ type Payload struct {
 	ID      int         `json:"id"`
 }
 
-// Result struct holds a Zabbix host info
-type Result struct {
+// hostResult struct holds a Zabbix host info
+type hostResult struct {
 	HostID      string `json:"hostid"`
 	Host        string `json:"host"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-// Results struct holds a list of Zabbix host info
-type Results []Result
+// HostResults struct holds a list of Zabbix hosts
+type HostResults []hostResult
+
+// TriggerHost struct holds info about a Zabbix Host in a Trigger
+type TriggerHost struct {
+	Name string `json:"name"`
+}
+
+// triggerResult struct holds a Zabbix trigger info
+type triggerResult struct {
+	Description string        `json:"description"`
+	Hosts       []TriggerHost `json:"hosts"`
+}
+
+// TriggerResults struct holds a list of Zabbix triggers
+type TriggerResults []triggerResult
 
 // API response Error struct
 type apiError struct {
@@ -100,8 +114,8 @@ func (a *API) GetKey() (string, error) {
 	payload := a.BuildPayload(params, "user.login")
 
 	var r struct {
-		Key string   `json:"result"`
-		Err apiError `json:"error"`
+		Key string    `json:"result"`
+		Err *apiError `json:"error"`
 	}
 
 	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
@@ -115,7 +129,7 @@ func (a *API) GetKey() (string, error) {
 		return "", fmt.Errorf("cannot decode response. Error: %v", err)
 	}
 	//  Check if the response contains an error
-	if r.Err != (apiError{}) {
+	if r.Err != nil {
 		return "", fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
 	}
 
@@ -123,13 +137,11 @@ func (a *API) GetKey() (string, error) {
 }
 
 // GetHostsInfo gets hosts information from Zabbix
-func (a *API) GetHostsInfo() (Results, error) {
+func (a *API) GetHostsInfo() (HostResults, error) {
 	params := struct {
-		Output         []string `json:"output"`
-		SelectTriggers []string `json:"selectTriggers"`
+		Output []string `json:"output"`
 	}{
-		Output:         []string{"host", "name", "description"},
-		SelectTriggers: []string{"description", "status"},
+		Output: []string{"host", "name", "description"},
 	}
 
 	payload := a.BuildPayload(params, "host.get")
@@ -140,8 +152,8 @@ func (a *API) GetHostsInfo() (Results, error) {
 	}
 
 	var r struct {
-		Results `json:"result"`
-		Err     apiError `json:"error"`
+		HostResults `json:"result"`
+		Err         *apiError `json:"error"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&r)
@@ -150,8 +162,44 @@ func (a *API) GetHostsInfo() (Results, error) {
 	}
 
 	//  Check if the response contains an error
-	if r.Err != (apiError{}) {
-		return r.Results, fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
+	if r.Err != nil {
+		return r.HostResults, fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
 	}
-	return r.Results, nil
+	return r.HostResults, nil
+}
+
+// GetTriggersInfo gets triggers information for hosts from Zabbix
+func (a *API) GetTriggersInfo() (TriggerResults, error) {
+	params := struct {
+		Output      []string `json:"output"`
+		SelectHosts []string `json:"selectHosts"`
+		Active      string   `json:"active"`
+	}{
+		Output:      []string{"description"},
+		SelectHosts: []string{"name"},
+	}
+
+	payload := a.BuildPayload(params, "trigger.get")
+
+	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
+
+	if err != nil {
+		return nil, fmt.Errorf("cannot make API request. error: %v", err)
+	}
+
+	var r struct {
+		TriggerResults `json:"result"`
+		Err            *apiError `json:"error"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&r)
+	if err != nil {
+		return nil, fmt.Errorf("cannot decode response. error: %v", err)
+	}
+
+	//  Check if the response contains an error
+	if r.Err != nil {
+		return r.TriggerResults, fmt.Errorf("%v %v", r.Err.Message, r.Err.Data)
+	}
+	return r.TriggerResults, nil
 }
