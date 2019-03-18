@@ -4,12 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib"
 	"github.com/kosyfrances/rundeck-zabbix/lib/resources"
-	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
-
-var filePath string
 
 // resourceCmd represents the resource command
 var resourcesCmd = &cobra.Command{
@@ -29,17 +25,9 @@ func init() {
 }
 
 func runResources(cmd *cobra.Command, args []string) {
-	newConfig, err := lib.NewConfigFromFile(lib.ConfigPath)
+	a, err := createZabbixClient()
 	if err != nil {
-		log.Errorf("cannot create config from file. %v", err)
-		return
-	}
-	URL := newConfig.Zabbix.URL
-	key := newConfig.Zabbix.APIKey
-
-	a, err := zabbix.CreateClientUsingAPIKey(URL, key)
-	if err != nil {
-		log.Errorf("cannot find needed params. %v", err)
+		log.Errorf("error creating Zabbix client. %v", err)
 		return
 	}
 
