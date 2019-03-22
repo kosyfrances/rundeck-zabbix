@@ -7,6 +7,8 @@ import (
 	"github.com/kosyfrances/rundeck-zabbix/lib/resources"
 )
 
+var resourceFilePath string
+
 // resourceCmd represents the resource command
 var resourcesCmd = &cobra.Command{
 	Use:   "resources",
@@ -21,7 +23,7 @@ var resourcesCmd = &cobra.Command{
 
 func init() {
 	generateCmd.AddCommand(resourcesCmd)
-	resourcesCmd.Flags().StringVar(&filePath, "file", "resources.yml", "Path to file where generated Resources will be written")
+	resourcesCmd.Flags().StringVar(&resourceFilePath, "file", "resources.yml", "Path to file where generated Resources will be written")
 }
 
 func runResources(cmd *cobra.Command, args []string) {
@@ -43,9 +45,9 @@ func runResources(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err = resources.Make(res, filePath); err != nil {
+	if err = resources.Make(res, resourceFilePath); err != nil {
 		log.Errorf("cannot generate resource. %v", err)
 	} else {
-		log.Infof("Resources generated in %v", filePath)
+		log.Infof("Resources generated in %v", resourceFilePath)
 	}
 }
