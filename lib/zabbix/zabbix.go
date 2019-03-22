@@ -1,10 +1,11 @@
 package zabbix
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
 )
 
 // API struct details for Zabbix
@@ -86,26 +87,6 @@ func (a *API) BuildPayload(params interface{}, method string) Payload {
 	}
 }
 
-// MakeRequest makes an API call to Zabbix.
-// It returns a response object and an error object.
-func (a *API) MakeRequest(payload Payload) (*http.Response, error) {
-	// Build the request
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("cannot marshal payload. error: %v", err)
-	}
-
-	body := bytes.NewReader(b)
-	req, err := http.NewRequest(http.MethodGet, a.URL, body)
-	if err != nil {
-		return nil, fmt.Errorf("cannot make HTTP request. error: %v", err)
-	}
-
-	req.Header.Set("Content-type", "application/json")
-	// Send the request via a client
-	return http.DefaultClient.Do(req)
-}
-
 // GetKey gets Zabbix API key
 func (a *API) GetKey() (string, error) {
 	params := struct {
@@ -123,7 +104,7 @@ func (a *API) GetKey() (string, error) {
 		Err apiError `json:"error"`
 	}
 
-	resp, err := a.MakeRequest(payload)
+	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
 
 	if err != nil {
 		return "", fmt.Errorf("cannot make Zabbix API call. Error: %v", err)
@@ -153,7 +134,7 @@ func (a *API) GetHostsInfo() (Results, error) {
 
 	payload := a.BuildPayload(params, "host.get")
 
-	resp, err := a.MakeRequest(payload)
+	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
 	}

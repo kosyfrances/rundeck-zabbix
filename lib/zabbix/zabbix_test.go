@@ -33,30 +33,6 @@ func TestGetKey(t *testing.T) {
 	}
 }
 
-// Test that given a payload,
-// we receive a response when we make an API call
-func TestMakeRequest(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-	}))
-	defer ts.Close()
-
-	api, err := CreateClientUsingAPIKey(ts.URL, "ZABBIX_KEY")
-	if err != nil {
-		t.Error("cannot find needed params.", err)
-	}
-
-	payload := api.BuildPayload(nil, "apiinfo.version")
-	resp, err := api.MakeRequest(payload)
-	if err != nil {
-		t.Fatalf("Process ran with err %v, want response", err)
-		return
-	}
-	if resp.StatusCode != 200 {
-		t.Error("Expected response status code to be 200")
-	}
-}
-
 // Tests that we can get Resource info from a Zabbix API call
 func TestGetHostsInfo(t *testing.T) {
 	expected := Results{
