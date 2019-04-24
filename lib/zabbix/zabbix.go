@@ -118,7 +118,7 @@ func (a *API) GetKey() (string, error) {
 		Err *apiError `json:"error"`
 	}
 
-	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
+	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
 
 	if err != nil {
 		return "", fmt.Errorf("cannot make Zabbix API call. Error: %v", err)
@@ -146,7 +146,7 @@ func (a *API) GetHostsInfo() (HostResults, error) {
 
 	payload := a.BuildPayload(params, "host.get")
 
-	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
+	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
 	}
@@ -181,7 +181,7 @@ func (a *API) GetTriggersInfo() (TriggerResults, error) {
 
 	payload := a.BuildPayload(params, "trigger.get")
 
-	resp, err := utils.MakeRequest(http.MethodGet, a.URL, payload)
+	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
