@@ -8,22 +8,44 @@ import (
 	"os"
 )
 
-// MakeRequest makes an API request.
-// It returns a response object and an error object.
-func MakeRequest(method, URL string, payload interface{}) (*http.Response, error) {
-	// Build the request
+func buildRequest(method, URL string, payload interface{}) (*http.Request, error) {
 	b, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot marshal payload. error: %v", err)
 	}
 
 	body := bytes.NewReader(b)
-	req, err := http.NewRequest(method, URL, body)
+	return http.NewRequest(method, URL, body)
+}
+
+// MakeRundeckRequest makes an API request.
+// It sets the header "Accept" as "application/json".
+// It returns a response object and an error object.
+func MakeRundeckRequest(method, URL string, payload interface{}) (*http.Response, error) {
+	// Build the request
+	req, err := buildRequest(method, URL, payload)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create HTTP request. error: %v", err)
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	// Send the request via a client
+	return http.DefaultClient.Do(req)
+}
+
+// MakeZabbixRequest makes an API request.
+// It sets the header "Content-type" as "application/json".
+// It returns a response object and an error object.
+func MakeZabbixRequest(method, URL string, payload interface{}) (*http.Response, error) {
+	// Build the request
+	req, err := buildRequest(method, URL, payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create HTTP request. error: %v", err)
 	}
 
 	req.Header.Set("Content-type", "application/json")
+
 	// Send the request via a client
 	return http.DefaultClient.Do(req)
 }

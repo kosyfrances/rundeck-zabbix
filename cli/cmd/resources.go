@@ -18,7 +18,7 @@ var resourcesCmd = &cobra.Command{
 	If a file path is given, the generated resources are appended to the file.
 	If the given file Path does not exist, it gets created.
 	Otherwise, a resources.yml file is generated in the current path.`,
-	Run: runResources,
+	Run: generateResources,
 }
 
 func init() {
@@ -26,7 +26,7 @@ func init() {
 	resourcesCmd.Flags().StringVar(&resourceFilePath, "file", "resources.yml", "Path to file where generated Resources will be written")
 }
 
-func runResources(cmd *cobra.Command, args []string) {
+func generateResources(cmd *cobra.Command, args []string) {
 	a, err := createZabbixClient()
 	if err != nil {
 		log.Errorf("error creating Zabbix client. %v", err)

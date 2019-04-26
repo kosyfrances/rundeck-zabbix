@@ -58,6 +58,11 @@ func Make(results zabbix.TriggerResults, filePath, prefix string) error {
 					Commands: []commands{{Exec: ""}},
 				}
 
+				// Note: Rundeck job names does not accept slashes
+				// https://rundeck.lighthouseapp.com/projects/59277/tickets/558
+				// The user is responsible for ensuring that the trigger description on Zabbix does not contain slashes,
+				// else even if it gets added to the job file, the user will not be able to load it in Rundeck.
+
 				j := job{
 					Name:        result.Description,
 					Description: result.Description,

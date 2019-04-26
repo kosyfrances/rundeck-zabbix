@@ -14,20 +14,40 @@ func TestMakeRequest(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	// Get request
-	resp, err := MakeRequest(http.MethodPost, ts.URL, nil)
+	// Get Rundeck request
+	resp, err := MakeRundeckRequest(http.MethodGet, ts.URL, nil)
 	if err != nil {
-		t.Fatalf("Process ran with err %v, want response", err)
+		t.Fatalf("MakeRundeckRequest with Get method ran with err %v, want response", err)
 		return
 	}
 	if resp.StatusCode != 200 {
 		t.Error("Expected response status code to be 200")
 	}
 
-	// Post request
-	resp, err = MakeRequest(http.MethodPost, ts.URL, nil)
+	// Get Zabbix request
+	resp, err = MakeZabbixRequest(http.MethodGet, ts.URL, nil)
 	if err != nil {
-		t.Fatalf("Process ran with err %v, want response", err)
+		t.Fatalf("MakeZabbixRequest with Get method ran with err %v, want response", err)
+		return
+	}
+	if resp.StatusCode != 200 {
+		t.Error("Expected response status code to be 200")
+	}
+
+	// Post Rundeck request
+	resp, err = MakeRundeckRequest(http.MethodPost, ts.URL, nil)
+	if err != nil {
+		t.Fatalf("MakeRundeckRequest with Post method ran with err %v, want response", err)
+		return
+	}
+	if resp.StatusCode != 200 {
+		t.Error("Expected response status code to be 200")
+	}
+
+	// Post Zabbix request
+	resp, err = MakeZabbixRequest(http.MethodPost, ts.URL, nil)
+	if err != nil {
+		t.Fatalf("MakeZabbixRequest Post method ran with err %v, want response", err)
 		return
 	}
 	if resp.StatusCode != 200 {
