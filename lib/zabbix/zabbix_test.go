@@ -18,9 +18,10 @@ func TestGetKey(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	api, err := CreateClientUsingAuth(ts.URL, "ZABBIX_USER", "ZABBIX_PASSWORD")
-	if err != nil {
-		t.Fatalf("cannot find needed params. %v", err)
+	api := API{
+		URL:      ts.URL,
+		User:     "ZABBIX_USER",
+		Password: "ZABBIX_PASSWORD",
 	}
 
 	// Get API Key
@@ -56,9 +57,9 @@ func TestGetHostsInfo(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	a, err := CreateClientUsingAPIKey(ts.URL, "fake_zabbix_key")
-	if err != nil {
-		t.Fatalf("process ran with err %v,", err)
+	a := API{
+		URL: ts.URL,
+		Key: "fake_zabbix_key",
 	}
 
 	res, err := a.GetHostsInfo()
@@ -96,9 +97,9 @@ func TestGetTriggersInfo(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	a, err := CreateClientUsingAPIKey(ts.URL, "fake_zabbix_key")
-	if err != nil {
-		t.Fatalf("process ran with err %v,", err)
+	a := API{
+		URL: ts.URL,
+		Key: "fake_zabbix_key",
 	}
 
 	res, err := a.GetTriggersInfo()
@@ -172,4 +173,36 @@ func TestCreateClientUsingAuth(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected client to be %v but got %v", expected, a)
 	}
+}
+
+func TestAcknowledgeEvent(t *testing.T) {
+	expected := map[string][]int{"eventids": []int{49}}
+
+	// mock api call
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		res := struct {
+			Event map[string][]int `json:"result"`
+		}{expected}
+		err := json.NewEncoder(w).Encode(res)
+		if err != nil {
+			t.Fatalf("unable to write response. error: %v", err)
+		}
+	}))
+	defer ts.Close()
+
+	a := API{
+		URL: ts.URL,
+		Key: "fake_zabbix_key",
+	}
+
+	res, err := a.AcknowledgeEvent("49", "fake message")
+	if err != nil {
+		t.Fatalf("process ran with err %v, want result to be %v", err, []int{49})
+	}
+
+	if !reflect.DeepEqual(res, []int{49}) {
+		t.Errorf("expected Zabbix acknowledgement event ID to be %v", []int{49})
+	}
+
 }
