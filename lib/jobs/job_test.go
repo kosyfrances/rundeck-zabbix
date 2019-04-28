@@ -94,7 +94,7 @@ func TestMakeJob(t *testing.T) {
 	expectedContent := strings.Trim(e, "\n")
 
 	if content != expectedContent {
-		t.Fatalf("test returned \n%v\n\n expected file content to be \n%v", content, expectedContent)
+		t.Errorf("test returned \n%v\n\n expected file content to be \n%v", content, expectedContent)
 	}
 
 	// Truncate temp file (We want previous file contents gone before next test)
@@ -129,7 +129,7 @@ func TestMakeJob(t *testing.T) {
 	expectedContent = strings.Trim(e, "\n")
 
 	if content != expectedContent {
-		t.Fatalf("test returned \n%v\n\n expected file content to be \n%v", content, expectedContent)
+		t.Errorf("test returned \n%v\n\n expected file content to be \n%v", content, expectedContent)
 	}
 
 }

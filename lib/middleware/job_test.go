@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -41,14 +42,29 @@ func TestGetRundeckJobID(t *testing.T) {
 }
 
 func TestExecuteRundeckJob(t *testing.T) {
+	expected := JobExecResponse{
+		ID:      4,
+		Status:  "running",
+		Project: "test-project",
+		Job: job{
+			Name: "fake-job",
+		},
+	}
 	// mock api call
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(expected)
+		if err != nil {
+			t.Fatalf("unable to write response. error: %v", err)
+		}
 	}))
 	defer ts.Close()
 
-	err := ExecuteRundeckJob(ts.URL)
+	resp, err := ExecuteRundeckJob(ts.URL)
 	if err != nil {
 		t.Fatalf("Process ran with err %v", err)
+	}
+	if *resp != expected {
+		t.Errorf("expected rundeck execution to return %v", expected)
 	}
 }

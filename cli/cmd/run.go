@@ -12,6 +12,7 @@ import (
 
 var rundeckProject string
 var zabbixTrigger string
+var eventID string
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
@@ -38,6 +39,7 @@ func init() {
 	runCmd.AddCommand(jobCmd)
 	jobCmd.Flags().StringVar(&rundeckProject, "project", "", "Name of Rundeck project whose job will be executed.")
 	jobCmd.Flags().StringVar(&zabbixTrigger, "trigger", "", "Name of Zabbix trigger that is an exact match of a Rundeck job name to be executed.")
+	jobCmd.Flags().StringVar(&eventID, "event", "", "Zabbix Event ID to be acknowledged.")
 }
 
 func runJob(cmd *cobra.Command, args []string) {
@@ -73,10 +75,33 @@ func runJob(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err = middleware.ExecuteRundeckJob(URLEndpoint)
+	// Execute job
+	execResp, err := middleware.ExecuteRundeckJob(URLEndpoint)
 	if err != nil {
 		log.Errorf("cannot execute Rundeck job. Job ID: %s; Error: %v", ID, err)
-	} else {
-		log.Infof("Successfully executed Rundeck job. Job ID: %s", ID)
+		return
 	}
+	log.Infof("Successfully executed Rundeck job. Job ID: %s", ID)
+
+	// Send acknowledgment to Zabbix
+	a, err := createZabbixClient()
+	if err != nil {
+		log.Errorf("error creating Zabbix client. %v", err)
+		return
+	}
+
+	message := fmt.Sprintf(
+		"Rundeck-Execution ID: %d, Status: %s, Job: %s, Project: %s", execResp.ID, execResp.Status, execResp.Job.Name, execResp.Project,
+	)
+	ackIDs, err := a.AcknowledgeEvent(eventID, message)
+	if err != nil {
+		log.Errorf("cannot acknowledge Zabbix Event. %v", err)
+		return
+	}
+
+	if len(ackIDs) == 0 {
+		log.Errorf("no Zabbix event acknowledged. %v", err)
+		return
+	}
+	log.Infof("Acknowledged event on Zabbix. Event ID(s): %v", ackIDs)
 }

@@ -203,3 +203,51 @@ func (a *API) GetTriggersInfo() (TriggerResults, error) {
 	}
 	return r.TriggerResults, nil
 }
+
+// AcknowledgeEvent acknowledges a single event and leaves a message.
+// It returns the event ID and an error if any.
+func (a *API) AcknowledgeEvent(eventID, message string) ([]int, error) {
+	params := struct {
+		EventIDs string `json:"eventids"`
+		// Event update action(s). This is bitmask field, any combination of values are acceptable.
+		// Possible values:
+		// 1 - close problem;
+		// 2 - acknowledge event;
+		// 4 - add message;
+		// 8 - change severity.
+		Action  int    `json:"action"`
+		Message string `json:"message"`
+	}{
+		EventIDs: eventID,
+		// 6 == 4 (add message) + 2 (ack event)
+		Action:  6,
+		Message: message,
+	}
+
+	payload := a.BuildPayload(params, "event.acknowledge")
+
+	resp, err := utils.MakeZabbixRequest(http.MethodPost, a.URL, payload)
+
+	if err != nil {
+		return nil, fmt.Errorf("cannot make API request. error: %v", err)
+	}
+
+	var r struct {
+		Result struct {
+			EventIDs []int `json:"eventids"`
+		} `json:"result"`
+		Err *apiError `json:"error"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&r)
+	if err != nil {
+		return nil, fmt.Errorf("cannot decode response from Zabbix service. error: %v", err)
+	}
+
+	//  Check if the response contains an error
+	if r.Err != nil {
+		return nil, fmt.Errorf("Zabbix service returned an error response. %v %v", r.Err.Message, r.Err.Data)
+	}
+
+	return r.Result.EventIDs, nil
+}
