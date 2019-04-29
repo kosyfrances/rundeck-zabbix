@@ -171,9 +171,10 @@ func (a *API) GetHostsInfo() (HostResults, error) {
 // GetTriggersInfo gets triggers information for hosts from Zabbix
 func (a *API) GetTriggersInfo() (TriggerResults, error) {
 	params := struct {
-		Output      []string `json:"output"`
-		SelectHosts []string `json:"selectHosts"`
-		Active      string   `json:"active"`
+		Output            []string `json:"output"`
+		SelectHosts       []string `json:"selectHosts"`
+		Active            string   `json:"active"`
+		ExpandDescription string   `json:"expandDescription"`
 	}{
 		Output:      []string{"description"},
 		SelectHosts: []string{"name"},
