@@ -8,7 +8,7 @@ build-dummy-host:
 	./dev/dummy-host.sh
 	docker start dummy-host
 
-build-all: build-zabbix-server build-dummy-host build-rundeck
+build-containers: build-zabbix-server build-dummy-host build-rundeck
 
 start-zabbix-server:
 	echo "Starting Zabbix server containers"
@@ -40,11 +40,21 @@ stop-dummy-host:
 	echo "Stopping Dummy host"
 	docker stop dummy-host
 
-start-all: start-zabbix-server start-rundeck start-dummy-host
+start-containers: start-zabbix-server start-rundeck start-dummy-host
 
-stop-all: stop-zabbix-server stop-rundeck stop-dummy-host
+stop-containers: stop-zabbix-server stop-rundeck stop-dummy-host
 
 test:
 	golint `go list ./... | grep -v /vendor/`
 	@echo ""
 	go test ./...
+
+build:
+	pushd cli/ && \
+	CGO_ENABLED=0 GOOS=linux go build -o ../rundeck-zabbix  && \
+	popd
+
+build-generic:
+	pushd cli/ && \
+	go build -o ../rundeck-zabbix  && \
+	popd
