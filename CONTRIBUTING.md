@@ -52,4 +52,4 @@ Any maintainer is allowed to merge a PR if all of these conditions are
 met.
 
 ### Shipping a release (maintainers only)
-TBD
+Releases are done on the [Github UI](https://github.com/kosyfrances/rundeck-zabbix/releases) using [SemVer](https://semver.org/) for versioning.
