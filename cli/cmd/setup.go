@@ -15,7 +15,6 @@ import (
 var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "initialise tool configuration",
-	Long:  `initialise tool configuration`,
 	Run:   runSetup,
 }
 
@@ -40,9 +39,9 @@ func init() {
 }
 
 func runSetup(cmd *cobra.Command, args []string) {
-	cfg, err := lib.NewConfigFromFile(lib.ConfigPath)
+	cfg, err := lib.NewConfigFromFile(cfgFile)
 	if err != nil {
-		log.Infof("no config file yet. %v", err)
+		log.Infof("%v. creating new config file  ...", err)
 		cfg = &lib.Config{}
 	}
 
@@ -78,10 +77,10 @@ func runSetup(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err = cfg.Save()
+	err = cfg.Save(cfgFile)
 	if err != nil {
 		log.Errorf("cannot save configuration. %v", err)
 	} else {
-		log.Infof("Configuration file generated in %v", lib.ConfigDirectory)
+		log.Infof("Configuration file generated in %v", cfgFile)
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 )
 
 // ZabbixConfig struct holds Zabbix configuration info
@@ -28,34 +27,14 @@ type Config struct {
 	Rundeck RundeckConfig `json:"rundeck"`
 }
 
-var (
-	// ConfigPath holds path to config
-	ConfigPath string
-
-	// ConfigDirectory holds path to config directory
-	ConfigDirectory string
-)
-
-// AppConfigName is the config file constant for config
-const AppConfigName = "config"
-
-func init() {
-	ConfigDirectory = path.Join(os.ExpandEnv("$HOME"), ".rundeck-zabbix/")
-	ConfigPath = path.Join(ConfigDirectory, fmt.Sprintf("%s.json", AppConfigName))
-
-	if FileExists(ConfigDirectory) == false {
-		os.MkdirAll(ConfigDirectory, os.ModePerm)
-	}
-}
-
 // Save object config
-func (object *Config) Save() error {
+func (object *Config) Save(configPath string) error {
 	data, err := json.MarshalIndent(*object, "", "  ")
 	if err != nil {
 		return fmt.Errorf("cannot marshal config. Error: %v", err)
 	}
 
-	err = ioutil.WriteFile(ConfigPath, data, 0644)
+	err = ioutil.WriteFile(configPath, data, 0644)
 	if err != nil {
 		return fmt.Errorf("cannot write to file. Error: %v", err)
 	}
@@ -67,7 +46,7 @@ func NewConfigFromFile(configPath string) (*Config, error) {
 	config := Config{}
 	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read file. Error: %v", err)
+		return nil, fmt.Errorf("cannot read config file. Error: %v", err)
 	}
 	err = json.Unmarshal(b, &config)
 	if err != nil {

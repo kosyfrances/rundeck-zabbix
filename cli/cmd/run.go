@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib"
-	"github.com/kosyfrances/rundeck-zabbix/lib/middleware"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/kosyfrances/rundeck-zabbix/lib"
+	"github.com/kosyfrances/rundeck-zabbix/lib/middleware"
 )
 
 var rundeckProject string
@@ -44,7 +45,7 @@ func init() {
 
 func runJob(cmd *cobra.Command, args []string) {
 	// Get Rundeck Auth Token
-	newConfig, err := lib.NewConfigFromFile(lib.ConfigPath)
+	newConfig, err := lib.NewConfigFromFile(cfgFile)
 	if err != nil {
 		log.Errorf("cannot create config from file. %v", err)
 		return
