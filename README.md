@@ -14,9 +14,9 @@ rundeck-zabbix is a Runbook automation tool, that integrates Zabbix trigger-base
 * Ops continues partying, nothing left for them to do
 
 ### Prerequisites
-* Zabbix
-* Rundeck
-* Go 1.11.x
+* [Zabbix](https://www.zabbix.com/download)
+* [Rundeck](https://www.rundeck.com/open-source/download)
+* [Go 1.11.x](https://golang.org/doc/install)
 * [Dep](https://golang.github.io/dep/)
 
 ### Installation
