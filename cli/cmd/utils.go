@@ -8,7 +8,7 @@ import (
 )
 
 func createZabbixClient() (*zabbix.API, error) {
-	newConfig, err := lib.NewConfigFromFile(lib.ConfigPath)
+	newConfig, err := lib.NewConfigFromFile(cfgFile)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create config from file. %v", err)
 

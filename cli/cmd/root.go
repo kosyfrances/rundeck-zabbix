@@ -15,7 +15,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cli",
+	Use:   "rundeck-zabbix",
 	Short: "rundeck-zabbix cli tool",
 }
 
@@ -31,30 +31,28 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli.yaml)")
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "path to rundeck-zabbix config file")
 }
 
-// initConfig reads in config file and ENV variables if set.
+// initConfig reads in config file.
 func initConfig() {
-	if cfgFile != "" { // enable ability to specify config file via flag
+	if cfgFile != "" {
+		// enable ability to specify config file via flag
 		viper.SetConfigFile(cfgFile)
+	} else {
+		log.Error("no config file given.")
+		os.Exit(1)
 	}
 
-	// setup config file with defaults
-	if lib.FileExists(lib.ConfigPath) == false {
-		// only warn when not running setup command
-		log.Warn("Configuration file not found. Please setup using `setup` command")
+	if !lib.FileExists(cfgFile) && setupCmd.CalledAs() == "" {
+		log.Error("config file does not exist. run setup to create new configuration.")
+		os.Exit(1)
 	} else {
-		viper.SetConfigName(lib.AppConfigName)   // name of config file (without extension)
-		viper.AddConfigPath(lib.ConfigDirectory) // adding home directory as first search path
-		viper.AutomaticEnv()                     // read in environment variables that match
+		viper.AutomaticEnv() // read in environment variables that match
 
 		// If a config file is found, read it in.
 		if err := viper.ReadInConfig(); err == nil {
 			log.Info("Loading config file:", viper.ConfigFileUsed())
 		}
-
 	}
-
 }

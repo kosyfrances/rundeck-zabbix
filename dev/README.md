@@ -64,8 +64,8 @@ resources.source.1.config.format=resourceyaml
 * Start Dummy host container --> `make start-dummy-host`
 * Stop Dummy host container --> `make stop-dummy-host`
 
-* Start all containers --> `make start-all`
-* Stop all containers --> `make stop-all`
+* Start all containers --> `make start-containers`
+* Stop all containers --> `make stop-containers`
 
 ## Running tests
 Run `make test` to run tests.
