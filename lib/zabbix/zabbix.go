@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
+	request "github.com/kosyfrances/rundeck-zabbix/lib/request"
 )
 
 // API struct details for Zabbix
@@ -118,7 +118,7 @@ func (a *API) GetKey() (string, error) {
 		Err *apiError `json:"error"`
 	}
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, payload)
 
 	if err != nil {
 		return "", fmt.Errorf("cannot make Zabbix API call. Error: %v", err)
@@ -146,7 +146,7 @@ func (a *API) GetHostsInfo() (HostResults, error) {
 
 	payload := a.BuildPayload(params, "host.get")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
 	}
@@ -182,7 +182,7 @@ func (a *API) GetTriggersInfo() (TriggerResults, error) {
 
 	payload := a.BuildPayload(params, "trigger.get")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, payload)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
@@ -227,7 +227,7 @@ func (a *API) AcknowledgeEvent(eventID, message string) ([]int, error) {
 
 	payload := a.BuildPayload(params, "event.acknowledge")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodPost, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodPost, a.URL, payload)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)

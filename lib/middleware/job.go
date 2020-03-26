@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
+	"github.com/kosyfrances/rundeck-zabbix/lib/request"
 )
 
 // BuildRundeckURLEndpoint builds a URL endpoint given a baseURL and an endpoint.
@@ -53,7 +53,7 @@ func GetRundeckJobID(URL string) (string, error) {
 
 	var r []response
 
-	resp, err := utils.MakeRundeckRequest(http.MethodGet, URL, nil)
+	resp, err := request.Make(request.RundeckHeaderKey, http.MethodGet, URL, nil)
 	if err != nil {
 		return "", fmt.Errorf("cannot make Rundeck API call to get job ID. Error: %v", err)
 	}
@@ -88,7 +88,7 @@ func ExecuteRundeckJob(URL string) (*JobExecResponse, error) {
 
 	r := &JobExecResponse{}
 
-	resp, err := utils.MakeRundeckRequest(http.MethodPost, URL, nil)
+	resp, err := request.Make(request.RundeckHeaderKey, http.MethodPost, URL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make Rundeck API call to execute job. Error: %v", err)
 	}
