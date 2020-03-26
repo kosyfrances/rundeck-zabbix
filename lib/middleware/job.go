@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/kosyfrances/rundeck-zabbix/lib/request"
 )
@@ -46,14 +47,14 @@ How do we figure out what exact job to run in this case?
 This function is implemented with the assumption that the job name (i.e Trigger name)
 being given is unique per project, else it will return the first match on the list.
 */
-func GetRundeckJobID(URL string) (string, error) {
+func GetRundeckJobID(URL string, timeout time.Duration) (string, error) {
 	type response struct {
 		ID string `json:"id"`
 	}
 
 	var r []response
 
-	resp, err := request.Make(request.RundeckHeaderKey, http.MethodGet, URL, nil)
+	resp, err := request.Make(request.RundeckHeaderKey, http.MethodGet, URL, timeout, nil)
 	if err != nil {
 		return "", fmt.Errorf("cannot make Rundeck API call to get job ID. Error: %v", err)
 	}
@@ -84,11 +85,11 @@ type JobExecResponse struct {
 
 // ExecuteRundeckJob executes a job on Rundeck given a URL endpoint.
 // It returns an error if any.
-func ExecuteRundeckJob(URL string) (*JobExecResponse, error) {
+func ExecuteRundeckJob(URL string, timeout time.Duration) (*JobExecResponse, error) {
 
 	r := &JobExecResponse{}
 
-	resp, err := request.Make(request.RundeckHeaderKey, http.MethodPost, URL, nil)
+	resp, err := request.Make(request.RundeckHeaderKey, http.MethodPost, URL, timeout, nil)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make Rundeck API call to execute job. Error: %v", err)
 	}

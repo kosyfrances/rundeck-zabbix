@@ -8,9 +8,12 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
+
+const timeout = 1 * time.Second
 
 // Test that we can get Rundeck resource model document in Yaml format
 // with hosts' information from Zabbix
@@ -51,7 +54,7 @@ func TestMakeResource(t *testing.T) {
 		t.Fatalf("process ran with err %v", err)
 	}
 
-	res, err := a.GetHostsInfo()
+	res, err := a.GetHostsInfo(timeout)
 	if err != nil {
 		t.Fatalf("cannot get hosts info.\n%v", err)
 	}

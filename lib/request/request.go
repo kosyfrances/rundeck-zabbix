@@ -29,7 +29,7 @@ func build(method, URL string, payload interface{}) (*http.Request, error) {
 // It returns a response object and an error object.
 // The header for Rundeck is "Accept: application/json"
 // The header for Zabbix is "Content-type: application/json"
-func Make(headerKey, method, URL string, payload interface{}) (*http.Response, error) {
+func Make(headerKey, method, URL string, timeout time.Duration, payload interface{}) (*http.Response, error) {
 	// Build the request
 	req, err := build(method, URL, payload)
 	if err != nil {
@@ -40,7 +40,7 @@ func Make(headerKey, method, URL string, payload interface{}) (*http.Response, e
 
 	// Send the request via a client
 	client := http.Client{
-		Timeout: 1 * time.Second,
+		Timeout: timeout,
 	}
 
 	return client.Do(req)

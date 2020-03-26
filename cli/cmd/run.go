@@ -62,7 +62,7 @@ func runJob(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	ID, err := middleware.GetRundeckJobID(URLEndpoint)
+	ID, err := middleware.GetRundeckJobID(URLEndpoint, timeout)
 	if err != nil {
 		log.Errorf("cannot get Rundeck job ID. %v", err)
 		return
@@ -77,7 +77,7 @@ func runJob(cmd *cobra.Command, args []string) {
 	}
 
 	// Execute job
-	execResp, err := middleware.ExecuteRundeckJob(URLEndpoint)
+	execResp, err := middleware.ExecuteRundeckJob(URLEndpoint, timeout)
 	if err != nil {
 		log.Errorf("cannot execute Rundeck job. Job ID: %s; Error: %v", ID, err)
 		return
@@ -94,7 +94,7 @@ func runJob(cmd *cobra.Command, args []string) {
 	message := fmt.Sprintf(
 		"Rundeck-Execution ID: %d, Status: %s, Job: %s, Project: %s", execResp.ID, execResp.Status, execResp.Job.Name, execResp.Project,
 	)
-	ackIDs, err := a.AcknowledgeEvent(eventID, message)
+	ackIDs, err := a.AcknowledgeEvent(eventID, message, timeout)
 	if err != nil {
 		log.Errorf("cannot acknowledge Zabbix Event. %v", err)
 		return

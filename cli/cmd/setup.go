@@ -71,7 +71,7 @@ func runSetup(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	cfg.Zabbix.APIKey, err = z.GetKey()
+	cfg.Zabbix.APIKey, err = z.GetKey(timeout)
 	if err != nil {
 		log.Errorf("cannot generate Zabbix API key. %v", err)
 		return

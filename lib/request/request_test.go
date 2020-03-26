@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const timeout = 1 * time.Second
+
 // Test that given a payload,
 // we receive a response when we make an API call
 func TestMakeRequest(t *testing.T) {
@@ -16,7 +18,7 @@ func TestMakeRequest(t *testing.T) {
 	defer ts.Close()
 
 	// Get Rundeck request
-	resp, err := Make(RundeckHeaderKey, http.MethodGet, ts.URL, nil)
+	resp, err := Make(RundeckHeaderKey, http.MethodGet, ts.URL, timeout, nil)
 	if err != nil {
 		t.Fatalf("MakeRundeckRequest with Get method ran with err %v, want response", err)
 		return
@@ -26,7 +28,7 @@ func TestMakeRequest(t *testing.T) {
 	}
 
 	// Get Zabbix request
-	resp, err = Make(ZabbixHeaderKey, http.MethodGet, ts.URL, nil)
+	resp, err = Make(ZabbixHeaderKey, http.MethodGet, ts.URL, timeout, nil)
 	if err != nil {
 		t.Fatalf("MakeZabbixRequest with Get method ran with err %v, want response", err)
 		return
@@ -36,7 +38,7 @@ func TestMakeRequest(t *testing.T) {
 	}
 
 	// Post Rundeck request
-	resp, err = Make(RundeckHeaderKey, http.MethodPost, ts.URL, nil)
+	resp, err = Make(RundeckHeaderKey, http.MethodPost, ts.URL, timeout, nil)
 	if err != nil {
 		t.Fatalf("MakeRundeckRequest with Post method ran with err %v, want response", err)
 		return
@@ -46,7 +48,7 @@ func TestMakeRequest(t *testing.T) {
 	}
 
 	// Post Zabbix request
-	resp, err = Make(ZabbixHeaderKey, http.MethodPost, ts.URL, nil)
+	resp, err = Make(ZabbixHeaderKey, http.MethodPost, ts.URL, timeout, nil)
 	if err != nil {
 		t.Fatalf("MakeZabbixRequest Post method ran with err %v, want response", err)
 		return
@@ -67,7 +69,7 @@ func TestMakeRequestTimeout(t *testing.T) {
 	defer ts.Close()
 
 	// Get Rundeck request
-	resp, err := Make(RundeckHeaderKey, http.MethodGet, ts.URL, nil)
+	resp, err := Make(RundeckHeaderKey, http.MethodGet, ts.URL, timeout, nil)
 	if err != nil {
 		t.Fatalf("MakeRundeckRequest with Get method ran with err %v, want response", err)
 		return

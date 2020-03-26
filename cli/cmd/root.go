@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -11,7 +12,12 @@ import (
 	"github.com/kosyfrances/rundeck-zabbix/lib"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	timeout time.Duration
+)
+
+const defaultTimeOut = 2 * time.Second
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -32,6 +38,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "path to rundeck-zabbix config file")
+	rootCmd.PersistentFlags().DurationVar(&timeout, "timeout", defaultTimeOut, "request timeout for API calls")
 }
 
 // initConfig reads in config file.

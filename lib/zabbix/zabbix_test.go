@@ -7,7 +7,10 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 )
+
+const timeout = 1 * time.Second
 
 // Test that we can get Zabbix API key from an API call,
 // set it in API struct
@@ -25,7 +28,7 @@ func TestGetKey(t *testing.T) {
 	}
 
 	// Get API Key
-	key, err := api.GetKey()
+	key, err := api.GetKey(timeout)
 	if err != nil {
 		t.Fatalf("Process ran with err %v, want ZABBIX_API_KEY to be fake_zabbix_key", err)
 	}
@@ -62,7 +65,7 @@ func TestGetHostsInfo(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.GetHostsInfo()
+	res, err := a.GetHostsInfo(timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, expected)
 	}
@@ -102,7 +105,7 @@ func TestGetTriggersInfo(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.GetTriggersInfo()
+	res, err := a.GetTriggersInfo(timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, expected)
 	}
@@ -196,7 +199,7 @@ func TestAcknowledgeEvent(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.AcknowledgeEvent("49", "fake message")
+	res, err := a.AcknowledgeEvent("49", "fake message", timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, []int{49})
 	}

@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
+
+const timeout = 1 * time.Second
 
 func TestBuildRundeckURLEndpoint(t *testing.T) {
 	baseURL := "http://rundeckbaseurl:4440"
@@ -31,7 +34,7 @@ func TestGetRundeckJobID(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	ID, err := GetRundeckJobID(ts.URL)
+	ID, err := GetRundeckJobID(ts.URL, timeout)
 	if err != nil {
 		t.Fatalf("Process ran with err %v, want ID to be fake-job-id", err)
 	}
@@ -60,7 +63,7 @@ func TestExecuteRundeckJob(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resp, err := ExecuteRundeckJob(ts.URL)
+	resp, err := ExecuteRundeckJob(ts.URL, timeout)
 	if err != nil {
 		t.Fatalf("Process ran with err %v", err)
 	}

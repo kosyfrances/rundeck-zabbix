@@ -8,9 +8,12 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
+
+const timeout = 1 * time.Second
 
 // Test that we can get Rundeck job model document in Yaml format
 // with triggers' information from Zabbix
@@ -56,7 +59,7 @@ func TestMakeJob(t *testing.T) {
 		t.Fatalf("process ran with err %v", err)
 	}
 
-	res, err := a.GetTriggersInfo()
+	res, err := a.GetTriggersInfo(timeout)
 	if err != nil {
 		t.Fatalf("cannot get triggers info.\n%v", err)
 	}
