@@ -28,7 +28,7 @@ Refer to the [dev setup guide](/dev/README.md).
 At this point, you're ready to make your changes! Feel free to ask for help;
 everyone is a beginner at first.
 
-Running `dep ensure` installs dependencies. If you need to add a new dependency, follow the [dep guide](https://golang.github.io/dep/docs/daily-dep.html#adding-a-new-dependency).
+This project uses [go modules](https://blog.golang.org/using-go-modules) to manage dependencies.
 
 Running `make test` runs tests.
 
