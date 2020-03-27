@@ -49,12 +49,12 @@ test:
 	@echo ""
 	go test ./...
 
-build:
+build-linux:
 	pushd cli/ && \
 	CGO_ENABLED=0 GOOS=linux go build -o ../rundeck-zabbix  && \
 	popd
 
-build-generic:
+build:
 	pushd cli/ && \
 	go build -o ../rundeck-zabbix  && \
 	popd

@@ -21,11 +21,11 @@ rundeck-zabbix is a Runbook automation tool, that integrates Zabbix trigger-base
 ### Installation
 Get the [latest release](https://github.com/kosyfrances/rundeck-zabbix/releases), unarchive and build with:
 ```bash
-# For Linux OS
+# For build specific to your machine's OS
 make build
 
-# For generic build specific to your machine's OS
-make build-generic
+# For Linux OS
+make build-linux
 ```
 
 There is more information [here](https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies) on how to compile Go packages and dependencies.
