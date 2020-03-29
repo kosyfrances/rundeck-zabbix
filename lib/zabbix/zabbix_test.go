@@ -7,7 +7,10 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 )
+
+const timeout = 1 * time.Second
 
 // Test that we can get Zabbix API key from an API call,
 // set it in API struct
@@ -25,7 +28,7 @@ func TestGetKey(t *testing.T) {
 	}
 
 	// Get API Key
-	key, err := api.GetKey()
+	key, err := api.GetKey(timeout)
 	if err != nil {
 		t.Fatalf("Process ran with err %v, want ZABBIX_API_KEY to be fake_zabbix_key", err)
 	}
@@ -62,7 +65,7 @@ func TestGetHostsInfo(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.GetHostsInfo()
+	res, err := a.GetHostsInfo(timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, expected)
 	}
@@ -102,7 +105,7 @@ func TestGetTriggersInfo(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.GetTriggersInfo()
+	res, err := a.GetTriggersInfo(timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, expected)
 	}
@@ -113,30 +116,44 @@ func TestGetTriggersInfo(t *testing.T) {
 }
 
 func TestCreateClientUsingAPIKey(t *testing.T) {
+	// Ensure that client cannot be created without both value and key
+	type test struct {
+		URL string
+		key string
+		err string
+	}
+
+	tests := []test{
+		{
+			URL: "fake_url",
+			key: "",
+			err: "zabbix API key missing. please run setup again",
+		},
+		{
+			URL: "",
+			key: "fake_key",
+			err: "zabbix URL missing. please run setup again",
+		},
+		{
+			URL: "",
+			key: "",
+			err: "zabbix URL missing. please run setup again",
+		},
+	}
+
+	for _, tc := range tests {
+		_, err := CreateClientUsingAPIKey(tc.URL, tc.key)
+		if err == nil {
+			t.Errorf("expected error to be %v but got %v", tc.err, err)
+		}
+	}
+
+	// Ensure that client is can be created with value and key
 	expected := &API{
 		URL: "fake_url",
 		Key: "fake_key",
 	}
 
-	// Ensure that client is not created without value for key
-	_, err := CreateClientUsingAPIKey(expected.URL, "")
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is not created without value for URL
-	_, err = CreateClientUsingAPIKey("", expected.Key)
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is not created without value for URL and key
-	_, err = CreateClientUsingAPIKey("", "")
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is can be created with value and key
 	a, err := CreateClientUsingAPIKey(expected.URL, expected.Key)
 	if err != nil {
 		t.Errorf("expected client to be %v but got %v", expected, a)
@@ -144,31 +161,45 @@ func TestCreateClientUsingAPIKey(t *testing.T) {
 }
 
 func TestCreateClientUsingAuth(t *testing.T) {
+	// Ensure that client is not created without incomplete values
+	type test struct {
+		URL      string
+		user     string
+		password string
+	}
+
+	tests := []test{
+		{
+			URL:      "",
+			user:     "fake_user",
+			password: "fake_password",
+		},
+		{
+			URL:      "fake_url",
+			user:     "",
+			password: "fake_password",
+		},
+		{
+			URL:      "fake_url",
+			user:     "fake_user",
+			password: "",
+		},
+	}
+
+	for _, tc := range tests {
+		_, err := CreateClientUsingAuth(tc.URL, tc.user, tc.password)
+		if err == nil {
+			t.Errorf("expected an error but got nil")
+		}
+	}
+
+	// Ensure that client is created with required values
 	expected := &API{
 		URL:      "fake_url",
 		User:     "fake_user",
 		Password: "fake_password",
 	}
 
-	// Ensure that client is not created without value for URL
-	_, err := CreateClientUsingAuth("", expected.User, expected.Password)
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is not created without value for Username
-	_, err = CreateClientUsingAuth(expected.URL, "", expected.Password)
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is not created without value for Password
-	_, err = CreateClientUsingAuth(expected.URL, expected.User, "")
-	if err == nil {
-		t.Error("expected an error but got nil")
-	}
-
-	// Ensure that client is created with required values
 	a, err := CreateClientUsingAuth(expected.URL, expected.User, expected.Password)
 	if err != nil {
 		t.Errorf("expected client to be %v but got %v", expected, a)
@@ -196,7 +227,7 @@ func TestAcknowledgeEvent(t *testing.T) {
 		Key: "fake_zabbix_key",
 	}
 
-	res, err := a.AcknowledgeEvent("49", "fake message")
+	res, err := a.AcknowledgeEvent("49", "fake message", timeout)
 	if err != nil {
 		t.Fatalf("process ran with err %v, want result to be %v", err, []int{49})
 	}

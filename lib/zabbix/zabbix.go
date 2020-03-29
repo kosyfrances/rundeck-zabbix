@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
+	"github.com/kosyfrances/rundeck-zabbix/lib/request"
 )
 
 // API struct details for Zabbix
@@ -102,7 +103,7 @@ func (a *API) BuildPayload(params interface{}, method string) Payload {
 }
 
 // GetKey gets Zabbix API key
-func (a *API) GetKey() (string, error) {
+func (a *API) GetKey(timeout time.Duration) (string, error) {
 	params := struct {
 		User     string `json:"user"`
 		Password string `json:"password"`
@@ -118,7 +119,7 @@ func (a *API) GetKey() (string, error) {
 		Err *apiError `json:"error"`
 	}
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, timeout, payload)
 
 	if err != nil {
 		return "", fmt.Errorf("cannot make Zabbix API call. Error: %v", err)
@@ -137,7 +138,7 @@ func (a *API) GetKey() (string, error) {
 }
 
 // GetHostsInfo gets hosts information from Zabbix
-func (a *API) GetHostsInfo() (HostResults, error) {
+func (a *API) GetHostsInfo(timeout time.Duration) (HostResults, error) {
 	params := struct {
 		Output []string `json:"output"`
 	}{
@@ -146,7 +147,7 @@ func (a *API) GetHostsInfo() (HostResults, error) {
 
 	payload := a.BuildPayload(params, "host.get")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, timeout, payload)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
 	}
@@ -169,7 +170,7 @@ func (a *API) GetHostsInfo() (HostResults, error) {
 }
 
 // GetTriggersInfo gets triggers information for hosts from Zabbix
-func (a *API) GetTriggersInfo() (TriggerResults, error) {
+func (a *API) GetTriggersInfo(timeout time.Duration) (TriggerResults, error) {
 	params := struct {
 		Output            []string `json:"output"`
 		SelectHosts       []string `json:"selectHosts"`
@@ -182,7 +183,7 @@ func (a *API) GetTriggersInfo() (TriggerResults, error) {
 
 	payload := a.BuildPayload(params, "trigger.get")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodGet, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodGet, a.URL, timeout, payload)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)
@@ -207,7 +208,7 @@ func (a *API) GetTriggersInfo() (TriggerResults, error) {
 
 // AcknowledgeEvent acknowledges a single event and leaves a message.
 // It returns the event ID and an error if any.
-func (a *API) AcknowledgeEvent(eventID, message string) ([]int, error) {
+func (a *API) AcknowledgeEvent(eventID, message string, timeout time.Duration) ([]int, error) {
 	params := struct {
 		EventIDs string `json:"eventids"`
 		// Event update action(s). This is bitmask field, any combination of values are acceptable.
@@ -227,7 +228,7 @@ func (a *API) AcknowledgeEvent(eventID, message string) ([]int, error) {
 
 	payload := a.BuildPayload(params, "event.acknowledge")
 
-	resp, err := utils.MakeZabbixRequest(http.MethodPost, a.URL, payload)
+	resp, err := request.Make(request.ZabbixHeaderKey, http.MethodPost, a.URL, timeout, payload)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot make API request. error: %v", err)

@@ -33,7 +33,7 @@ func generateResources(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	res, err := a.GetHostsInfo()
+	res, err := a.GetHostsInfo(timeout)
 	if err != nil {
 		log.Errorf("cannot get hosts info. %v", err)
 		return

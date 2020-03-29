@@ -40,7 +40,7 @@ func generateJobs(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	res, err := a.GetTriggersInfo()
+	res, err := a.GetTriggersInfo(timeout)
 	if err != nil {
 		log.Errorf("cannot get triggers info. %v", err)
 		return

@@ -6,7 +6,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/kosyfrances/rundeck-zabbix/lib/utils"
+	"github.com/kosyfrances/rundeck-zabbix/lib"
 	"github.com/kosyfrances/rundeck-zabbix/lib/zabbix"
 )
 
@@ -78,5 +78,5 @@ func Make(results zabbix.TriggerResults, filePath, prefix string) error {
 	if err != nil {
 		return fmt.Errorf("cannot marshal resource to yaml. %v", err)
 	}
-	return utils.DumpToFile(filePath, d)
+	return lib.DumpToFile(filePath, d)
 }
