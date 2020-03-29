@@ -41,7 +41,7 @@ func init() {
 func runSetup(cmd *cobra.Command, args []string) {
 	cfg, err := lib.NewConfigFromFile(cfgFile)
 	if err != nil {
-		log.Infof("%v. creating new config file  ...", err)
+		log.Infof("creating configuration ...")
 		cfg = &lib.Config{}
 	}
 
