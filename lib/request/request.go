@@ -10,8 +10,10 @@ import (
 
 const (
 	// ZabbixHeaderKey is the header key for Zabbix API request
+	// The header for Zabbix is "Content-type: application/json"
 	ZabbixHeaderKey = "Content-type"
 	// RundeckHeaderKey is the header key for Rundeck API request
+	// The header for Rundeck is "Accept: application/json"
 	RundeckHeaderKey = "Accept"
 )
 
@@ -27,8 +29,6 @@ func build(method, URL string, payload interface{}) (*http.Request, error) {
 
 // Make "makes" an API request.
 // It returns a response object and an error object.
-// The header for Rundeck is "Accept: application/json"
-// The header for Zabbix is "Content-type: application/json"
 func Make(headerKey, method, URL string, timeout time.Duration, payload interface{}) (*http.Response, error) {
 	// Build the request
 	req, err := build(method, URL, payload)
