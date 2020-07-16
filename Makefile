@@ -50,11 +50,11 @@ test:
 	go test ./...
 
 build-linux:
-	pushd cli/ && \
+	/bin/bash -c "pushd cli/ && \
 	CGO_ENABLED=0 GOOS=linux go build -o ../rundeck-zabbix  && \
-	popd
+	popd"
 
 build:
-	pushd cli/ && \
+	/bin/bash -c "pushd cli/ && \
 	go build -o ../rundeck-zabbix  && \
-	popd
+	popd"
