@@ -42,7 +42,26 @@ You'd need the following information:
 ```bash
 rundeck-zabbix setup --config=/path/to/dir/.config.json
 ```
-where `/path/to/dir` already exists.
+where `/path/to/dir` already exists and `.config.json` is the name of the file where the generated configuration will be stored.
+
+If `.config.json` does not already exist, the file will be created in the `/path/to/dir` specified.
+
+Here is a sample generated config:
+
+```json
+{
+  "zabbix": {
+    "url": "http://zabbix_url/api_jsonrpc.php",
+    "username": "user",
+    "password": "password",
+    "api_key": "zabbix_api_key"
+  },
+  "rundeck": {
+    "url": "http://rundeck_url",
+    "api_key": "rundeck_api_key"
+  }
+}
+```
 
 Logs can be found in `/tmp/rundeck-zabbix.log`.
 
